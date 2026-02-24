@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>FinFlow Pro — Personal Finance Dashboard</title>
+  <meta name="description"
+    content="Complete personal finance tracker: income, expenses, savings, goals, budgets, debt and net worth." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+    rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+
+<body>
+
+  <!-- ===== SIDEBAR ===== -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-brand">
+      <div class="brand-icon">💰</div>
+      <div class="brand-text">
+        <span class="brand-name">FinFlow</span>
+        <span class="brand-sub">Pro</span>
+      </div>
+    </div>
+
+    <nav class="sidebar-nav">
+      <div class="nav-section-label">Main</div>
+      <a class="nav-link active" data-tab="dashboard">
+        <span class="nav-icon">📊</span><span class="nav-label">Dashboard</span>
+      </a>
+      <div class="nav-section-label">Data Entry</div>
+      <a class="nav-link" data-tab="income">
+        <span class="nav-icon">📈</span><span class="nav-label">Income</span>
+      </a>
+      <a class="nav-link" data-tab="expenses">
+        <span class="nav-icon">📉</span><span class="nav-label">Expenses</span>
+      </a>
+      <a class="nav-link" data-tab="savings">
+        <span class="nav-icon">🏦</span><span class="nav-label">Savings</span>
+      </a>
+      <div class="nav-section-label">Planning</div>
+      <a class="nav-link" data-tab="budget">
+        <span class="nav-icon">🎯</span><span class="nav-label">Budget Plan</span>
+      </a>
+      <a class="nav-link" data-tab="goals">
+        <span class="nav-icon">🏆</span><span class="nav-label">Goals</span>
+      </a>
+      <a class="nav-link" data-tab="debt">
+        <span class="nav-icon">💳</span><span class="nav-label">Debt Tracker</span>
+      </a>
+      <div class="nav-section-label">Reports</div>
+      <a class="nav-link" data-tab="summary">
+        <span class="nav-icon">📅</span><span class="nav-label">Monthly Summary</span>
+      </a>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="avatar">F</div>
+      <div class="avatar-info">
+        <span class="avatar-name">FinFlow Pro</span>
+        <span class="avatar-date" id="sidebar-date"></span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== MAIN ===== -->
+  <main class="main-content">
+
+    <!-- TOP BAR -->
+    <header class="topbar">
+      <div class="topbar-left">
+        <button class="hamburger" id="hamburger-btn" aria-label="Open menu">
+          <span></span><span></span><span></span>
+        </button>
+        <div>
+          <h1 class="topbar-title" id="topbar-title">Dashboard</h1>
+          <p class="topbar-sub" id="topbar-sub">Personal Finance Tracker</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <div class="period-selector">
+          <select id="period-month" class="period-select">
+            <option value="0">Jan</option>
+            <option value="1">Feb</option>
+            <option value="2">Mar</option>
+            <option value="3">Apr</option>
+            <option value="4">May</option>
+            <option value="5">Jun</option>
+            <option value="6">Jul</option>
+            <option value="7">Aug</option>
+            <option value="8">Sep</option>
+            <option value="9">Oct</option>
+            <option value="10">Nov</option>
+            <option value="11">Dec</option>
+          </select>
+          <select id="period-year" class="period-select"></select>
+        </div>
+        <button class="btn btn-primary" id="global-add-btn">+ Add</button>
+      </div>
+    </header>
+    <div class="sidebar-overlay" id="sidebar-overlay"></div>
+
+    <!-- ===================== TAB: DASHBOARD ===================== -->
+    <section class="tab-panel active" id="tab-dashboard">
+      <!-- KPI Cards -->
+      <div class="kpi-grid">
+        <div class="kpi-card kpi-income">
+          <div class="kpi-top">
+            <span class="kpi-label">Total Income</span>
+            <span class="kpi-icon">📈</span>
+          </div>
+          <div class="kpi-value" id="kpi-income">$0.00</div>
+          <div class="kpi-sub" id="kpi-income-sub">0 transactions this month</div>
+        </div>
+        <div class="kpi-card kpi-expense">
+          <div class="kpi-top">
+            <span class="kpi-label">Total Expenses</span>
+            <span class="kpi-icon">📉</span>
+          </div>
+          <div class="kpi-value" id="kpi-expense">$0.00</div>
+          <div class="kpi-sub" id="kpi-expense-sub">0 transactions this month</div>
+        </div>
+        <div class="kpi-card kpi-savings">
+          <div class="kpi-top">
+            <span class="kpi-label">Net Savings</span>
+            <span class="kpi-icon">💰</span>
+          </div>
+          <div class="kpi-value" id="kpi-netsavings">$0.00</div>
+          <div class="kpi-sub" id="kpi-savings-sub">Income minus expenses</div>
+        </div>
+        <div class="kpi-card kpi-rate">
+          <div class="kpi-top">
+            <span class="kpi-label">Savings Rate</span>
+            <span class="kpi-icon">🎯</span>
+          </div>
+          <div class="kpi-value" id="kpi-rate">0%</div>
+          <div class="kpi-sub">Target ≥ 20%</div>
+        </div>
+        <div class="kpi-card kpi-budget">
+          <div class="kpi-top">
+            <span class="kpi-label">Remaining Budget</span>
+            <span class="kpi-icon">🧾</span>
+          </div>
+          <div class="kpi-value" id="kpi-remaining">$0.00</div>
+          <div class="kpi-sub" id="kpi-remaining-sub">–</div>
+        </div>
+        <div class="kpi-card kpi-health">
+          <div class="kpi-top">
+            <span class="kpi-label">Health Score</span>
+            <span class="kpi-icon">❤️</span>
+          </div>
+          <div class="kpi-value" id="kpi-health">–</div>
+          <div class="kpi-sub" id="kpi-health-sub">Out of 100</div>
+        </div>
+      </div>
+
+      <!-- Analysis Banner -->
+      <div class="analysis-banner" id="analysis-banner"></div>
+
+      <!-- Charts Grid -->
+      <div class="charts-main-grid">
+        <div class="chart-box chart-lg">
+          <div class="chart-box-header">
+            <h3>Income vs Expense Trend</h3>
+            <div class="chart-legend-inline">
+              <span class="dot green"></span> Income
+              <span class="dot red"></span> Expense
+              <span class="dot blue"></span> Savings
+            </div>
+          </div>
+          <div class="chart-container"><canvas id="trendChart"></canvas></div>
+        </div>
+        <div class="chart-box chart-sm">
+          <div class="chart-box-header">
+            <h3>Expense by Category</h3>
+          </div>
+          <div class="chart-container"><canvas id="pieChart"></canvas></div>
+          <div id="pie-legend" class="pie-legend"></div>
+        </div>
+      </div>
+
+      <div class="charts-sub-grid">
+        <div class="chart-box">
+          <div class="chart-box-header">
+            <h3>Monthly Savings</h3>
+          </div>
+          <div class="chart-container"><canvas id="savingsBar"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-header">
+            <h3>Weekly Expense Trend</h3>
+          </div>
+          <div class="chart-container"><canvas id="weeklyChart"></canvas></div>
+        </div>
+        <div class="chart-box">
+          <div class="chart-box-header">
+            <h3>Fixed vs Variable Expenses</h3>
+          </div>
+          <div class="chart-container"><canvas id="fixedVarChart"></canvas></div>
+        </div>
+      </div>
+
+      <!-- Yearly Summary Table -->
+      <div class="table-box">
+        <div class="table-box-header">
+          <h3>📅 Yearly Financial Summary</h3>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="yearly-summary-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Income</th>
+                <th>Expenses</th>
+                <th>Net Savings</th>
+                <th>Savings Rate</th>
+                <th>Burn Rate</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="yearly-tbody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TAB: INCOME ===================== -->
+    <section class="tab-panel" id="tab-income">
+      <div class="table-box">
+        <div class="table-box-header">
+          <h3>📈 Income Records</h3>
+          <div class="header-actions">
+            <div class="kpi-mini-row" id="income-mini-kpis"></div>
+            <button class="btn btn-primary" id="add-income-btn">+ Add Income</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="income-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Source</th>
+                <th>Category</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Notes</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="income-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="income-empty">
+            <div class="empty-icon">📈</div>
+            <p>No income records yet. Click <strong>+ Add Income</strong> to start.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TAB: EXPENSES ===================== -->
+    <section class="tab-panel" id="tab-expenses">
+      <div class="table-box">
+        <div class="table-box-header">
+          <h3>📉 Expense Records</h3>
+          <div class="header-actions">
+            <div class="kpi-mini-row" id="expense-mini-kpis"></div>
+            <button class="btn btn-primary" id="add-expense-btn">+ Add Expense</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="expense-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Category</th>
+                <th>Subcategory</th>
+                <th>Amount</th>
+                <th>Payment Method</th>
+                <th>Fixed/Var</th>
+                <th>Notes</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="expense-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="expense-empty">
+            <div class="empty-icon">📉</div>
+            <p>No expense records yet. Click <strong>+ Add Expense</strong> to start.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TAB: SAVINGS ===================== -->
+    <section class="tab-panel" id="tab-savings">
+      <div class="table-box">
+        <div class="table-box-header">
+          <h3>🏦 Savings Records</h3>
+          <div class="header-actions">
+            <div class="kpi-mini-row" id="savings-mini-kpis"></div>
+            <button class="btn btn-primary" id="add-savings-btn">+ Add Savings</button>
+          </div>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="savings-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Savings Type</th>
+                <th>Amount</th>
+                <th>Account</th>
+                <th>Notes</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="savings-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="savings-empty">
+            <div class="empty-icon">🏦</div>
+            <p>No savings records yet. Click <strong>+ Add Savings</strong> to start.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TAB: BUDGET ===================== -->
+    <section class="tab-panel" id="tab-budget">
+      <div class="table-box">
+        <div class="table-box-header">
+          <h3>🎯 Budget Plan — vs Actual</h3>
+          <button class="btn btn-primary" id="save-budget-btn">💾 Save Budgets</button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="budget-table">
+            <thead>
+              <tr>
+                <th>Category</th>
+                <th>Monthly Budget (रू)</th>
+                <th>Actual Spent (रू)</th>
+                <th>Variance (रू)</th>
+                <th>% Used</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="budget-tbody"></tbody>
+          </table>
+        </div>
+        <div class="budget-total-row" id="budget-totals"></div>
+      </div>
+    </section>
+
+    <!-- ===================== TAB: GOALS ===================== -->
+    <section class="tab-panel" id="tab-goals">
+      <div class="table-box">
+        <div class="table-box-header">
+          <h3>🏆 Financial Goals</h3>
+          <button class="btn btn-primary" id="add-goal-btn">+ Add Goal</button>
+        </div>
+        <div id="goals-grid" class="goals-grid"></div>
+        <div class="empty-state" id="goals-empty">
+          <div class="empty-icon">🏆</div>
+          <p>No goals yet. Click <strong>+ Add Goal</strong> to set your first financial goal.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== TAB: DEBT ===================== -->
+    <section class="tab-panel" id="tab-debt">
+      <div class="table-box">
+        <div class="table-box-header">
+          <h3>💳 Debt Tracker</h3>
+          <button class="btn btn-primary" id="add-debt-btn">+ Add Debt</button>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="debt-table">
+            <thead>
+              <tr>
+                <th>Debt Name</th>
+                <th>Lender</th>
+                <th>Balance (रू)</th>
+                <th>Interest Rate</th>
+                <th>Min Payment</th>
+                <th>Monthly Interest</th>
+                <th>Payoff (months)</th>
+                <th>Strategy</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="debt-tbody"></tbody>
+          </table>
+          <div class="empty-state" id="debt-empty">
+            <div class="empty-icon">💳</div>
+            <p>No debts recorded. Click <strong>+ Add Debt</strong> to track your debts.</p>
+          </div>
+        </div>
+        <div id="debt-summary" class="debt-summary-box"></div>
+      </div>
+    </section>
+
+    <!-- ===================== TAB: SUMMARY ===================== -->
+    <section class="tab-panel" id="tab-summary">
+      <div class="table-box">
+        <div class="table-box-header">
+          <h3>📅 Automatic Monthly Summary — <span id="summary-year-label">2026</span></h3>
+          <select id="summary-year-select" class="period-select"></select>
+        </div>
+        <div class="table-scroll">
+          <table class="data-table" id="summary-table">
+            <thead>
+              <tr>
+                <th>Month</th>
+                <th>Income</th>
+                <th>Expenses</th>
+                <th>Savings Deposited</th>
+                <th>Net</th>
+                <th>Savings Rate</th>
+                <th>Expense Ratio</th>
+                <th>Fixed Exp.</th>
+                <th>Variable Exp.</th>
+                <th>Health Score</th>
+              </tr>
+            </thead>
+            <tbody id="summary-tbody"></tbody>
+            <tfoot id="summary-tfoot"></tfoot>
+          </table>
+        </div>
+      </div>
+
+      <!-- Analysis Cards -->
+      <div class="analysis-grid" id="analysis-grid"></div>
+    </section>
+  </main>
+
+  <!-- ===================================================
+     MODALS
+==================================================== -->
+
+  <!-- Income Modal -->
+  <div class="modal-backdrop" id="income-modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Add Income</h2>
+        <button class="modal-x" data-close="income-modal-backdrop">✕</button>
+      </div>
+      <form id="income-form" class="modal-form">
+        <div class="form-row">
+          <div class="fg"><label>Date</label><input type="date" id="inc-date" class="fi" required /></div>
+          <div class="fg"><label>Amount (रू)</label><input type="number" id="inc-amount" class="fi" placeholder="0.00"
+              min="0.01" step="0.01" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Source</label><input type="text" id="inc-source" class="fi"
+              placeholder="e.g. Employer ABC" required /></div>
+          <div class="fg"><label>Category</label>
+            <select id="inc-category" class="fi">
+              <option>Salary</option>
+              <option>Business</option>
+              <option>Freelance</option>
+              <option>Investment</option>
+              <option>Rental</option>
+              <option>Gift</option>
+              <option>Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Payment Method</label>
+            <select id="inc-payment" class="fi">
+              <option>Bank Transfer</option>
+              <option>Cash</option>
+              <option>PayPal</option>
+              <option>Check</option>
+              <option>Crypto</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Notes</label><input type="text" id="inc-notes" class="fi"
+              placeholder="Optional notes" /></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="income-modal-backdrop">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Income</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Expense Modal -->
+  <div class="modal-backdrop" id="expense-modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Add Expense</h2>
+        <button class="modal-x" data-close="expense-modal-backdrop">✕</button>
+      </div>
+      <form id="expense-form" class="modal-form">
+        <div class="form-row">
+          <div class="fg"><label>Date</label><input type="date" id="exp-date" class="fi" required /></div>
+          <div class="fg"><label>Amount (रू)</label><input type="number" id="exp-amount" class="fi" placeholder="0.00"
+              min="0.01" step="0.01" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Category</label>
+            <select id="exp-category" class="fi">
+              <option>Housing</option>
+              <option>Food</option>
+              <option>Transport</option>
+              <option>Utilities</option>
+              <option>Health</option>
+              <option>Entertainment</option>
+              <option>Shopping</option>
+              <option>Education</option>
+              <option>Insurance</option>
+              <option>Debt Payment</option>
+              <option>Personal Care</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Subcategory</label><input type="text" id="exp-sub" class="fi"
+              placeholder="e.g. Rent, Groceries" /></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Payment Method</label>
+            <select id="exp-payment" class="fi">
+              <option>Bank Transfer</option>
+              <option>Cash</option>
+              <option>Credit Card</option>
+              <option>PayPal</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Fixed / Variable</label>
+            <select id="exp-fv" class="fi">
+              <option value="Fixed">Fixed</option>
+              <option value="Variable">Variable</option>
+            </select>
+          </div>
+        </div>
+        <div class="fg"><label>Notes</label><input type="text" id="exp-notes" class="fi" placeholder="Optional notes" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="expense-modal-backdrop">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Expense</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Savings Modal -->
+  <div class="modal-backdrop" id="savings-modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Add Savings</h2>
+        <button class="modal-x" data-close="savings-modal-backdrop">✕</button>
+      </div>
+      <form id="savings-form" class="modal-form">
+        <div class="form-row">
+          <div class="fg"><label>Date</label><input type="date" id="sav-date" class="fi" required /></div>
+          <div class="fg"><label>Amount (रू)</label><input type="number" id="sav-amount" class="fi" placeholder="0.00"
+              min="0.01" step="0.01" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Savings Type</label>
+            <select id="sav-type" class="fi">
+              <option>Emergency Fund</option>
+              <option>Retirement</option>
+              <option>Investment</option>
+              <option>Short-Term Goal</option>
+              <option>House Down Payment</option>
+              <option>Education</option>
+              <option>Other</option>
+            </select>
+          </div>
+          <div class="fg"><label>Account</label><input type="text" id="sav-account" class="fi"
+              placeholder="e.g. High-Yield Savings" /></div>
+        </div>
+        <div class="fg"><label>Notes</label><input type="text" id="sav-notes" class="fi" placeholder="Optional notes" />
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="savings-modal-backdrop">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Goal Modal -->
+  <div class="modal-backdrop" id="goal-modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Add Financial Goal</h2>
+        <button class="modal-x" data-close="goal-modal-backdrop">✕</button>
+      </div>
+      <form id="goal-form" class="modal-form">
+        <div class="form-row">
+          <div class="fg"><label>Goal Name</label><input type="text" id="goal-name" class="fi"
+              placeholder="e.g. Emergency Fund" required /></div>
+          <div class="fg"><label>Target Amount (रू)</label><input type="number" id="goal-target" class="fi"
+              placeholder="10000" min="1" step="1" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Saved So Far (रू)</label><input type="number" id="goal-saved" class="fi"
+              placeholder="0" min="0" step="0.01" /></div>
+          <div class="fg"><label>Target Date</label><input type="date" id="goal-date" class="fi" required /></div>
+        </div>
+        <div class="fg"><label>Category</label>
+          <select id="goal-category" class="fi">
+            <option>Emergency Fund</option>
+            <option>Retirement</option>
+            <option>Vacation</option>
+            <option>House</option>
+            <option>Car</option>
+            <option>Education</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="goal-modal-backdrop">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Goal</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Debt Modal -->
+  <div class="modal-backdrop" id="debt-modal-backdrop">
+    <div class="modal">
+      <div class="modal-head">
+        <h2>Add Debt</h2>
+        <button class="modal-x" data-close="debt-modal-backdrop">✕</button>
+      </div>
+      <form id="debt-form" class="modal-form">
+        <div class="form-row">
+          <div class="fg"><label>Debt Name</label><input type="text" id="debt-name" class="fi"
+              placeholder="e.g. Credit Card" required /></div>
+          <div class="fg"><label>Lender</label><input type="text" id="debt-lender" class="fi" placeholder="e.g. Bank A"
+              required /></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Balance (रू)</label><input type="number" id="debt-balance" class="fi"
+              placeholder="0.00" min="0" step="0.01" required /></div>
+          <div class="fg"><label>Annual Interest Rate (%)</label><input type="number" id="debt-rate" class="fi"
+              placeholder="e.g. 18.9" min="0" step="0.01" required /></div>
+        </div>
+        <div class="form-row">
+          <div class="fg"><label>Min Monthly Payment (रू)</label><input type="number" id="debt-minpay" class="fi"
+              placeholder="0.00" min="0" step="0.01" required /></div>
+          <div class="fg"><label>Extra Monthly Payment (रू)</label><input type="number" id="debt-extra" class="fi"
+              placeholder="0.00" min="0" step="0.01" /></div>
+        </div>
+        <div class="modal-actions">
+          <button type="button" class="btn btn-ghost" data-close="debt-modal-backdrop">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Debt</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
